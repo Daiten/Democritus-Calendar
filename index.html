@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Democritus Calendar</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --accent-color: #00adb5;
+            --text-main: #eeeeee;
+            --text-dim: #888888;
+            --divider: #393e46;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container { text-align: center; padding: 40px; width: 90%; max-width: 400px; }
+        #header-date { color: var(--text-dim); margin-bottom: 20px; text-transform: uppercase; }
+        #day-num { color: var(--accent-color); font-size: 1.5rem; margin: 0; }
+        #element-name { font-size: 4rem; font-weight: bold; margin: 10px 0; text-transform: uppercase; }
+        .divider { height: 2px; width: 80px; background-color: var(--divider); margin: 25px auto; }
+        #year-info { color: var(--text-dim); font-style: italic; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="header-date">Loading...</div>
+        <p id="day-num"></p>
+        <h1 id="element-name"></h1>
+        <div class="divider"></div>
+        <div id="year-info"></div>
+    </div>
+
+    <script>
+        const elements = [
+            "Hydrogen", "Helium", "Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon",
+            "Sodium", "Magnesium", "Aluminium", "Silicon", "Phosphorus", "Sulfur", "Chlorine", "Argon", "Potassium", "Calcium",
+            "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc",
+            "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton", "Rubidium", "Strontium", "Yttrium", "Zirconium",
+            "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin",
+            "Antimony", "Tellurium", "Iodine", "Xenon", "Cesium", "Barium", "Lanthanum", "Cerium", "Praseodymium", "Neodymium",
+            "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium",
+            "Lutetium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury",
+            "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon", "Francium", "Radium", "Actinium", "Thorium",
+            "Protactinium", "Uranium"
+        ];
+
+        try {
+            const now = new Date();
+            
+            // Explicitly defining the epoch start to avoid browser inconsistencies
+            const start = new Date(1, 0, 1); 
+            start.setFullYear(1); // Force year 1 (avoids 1901 bug)
+            
+            const diffInMs = now.getTime() - start.getTime();
+            const daysSince0001 = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+            
+            const daysFromEpochTo0001 = 460 * 365.2425;
+            const totalDays = daysSince0001 + daysFromEpochTo0001;
+
+            const dayIdx = Math.abs(Math.floor(totalDays % 92));
+            const year92 = Math.floor(totalDays / 92) + 1;
+            const yearFlavorIdx = Math.abs(Math.floor(year92 % 92));
+
+            document.getElementById('header-date').innerText = now.toDateString();
+            document.getElementById('day-num').innerText = "Day " + (dayIdx + 1);
+            document.getElementById('element-name').innerText = elements[dayIdx] || "Error";
+            document.getElementById('year-info').innerText = "Year " + year92 + " • Era of " + (elements[yearFlavorIdx] || "Unknown");
+            
+        } catch (err) {
+            document.getElementById('header-date').innerText = "JavaScript Error: " + err.message;
+        }
+    </script>
+</body>
+</html>
