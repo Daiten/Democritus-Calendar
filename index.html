@@ -1,75 +1,86 @@
-import tkinter as tk
-from tkinter import ttk
-from datetime import date
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Democritus Calendar</title>
+    <style>
+        :root { --bg: #1e1e1e; --accent: #00adb5; --text: #eeeeee; --dim: #888888; --line: #393e46; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { text-align: center; width: 90%; max-width: 400px; padding: 20px; }
+        #img-box { width: 200px; height: 200px; margin: 20px auto; background: #2a2a2a; border: 2px solid var(--line); border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        #element-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        #header { color: var(--dim); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; }
+        #day { color: var(--accent); font-size: 1.4rem; font-weight: bold; margin: 0; }
+        #name { font-size: 3.5rem; font-weight: 800; margin: 5px 0; text-transform: uppercase; }
+        .hr { height: 2px; width: 50px; background: var(--line); margin: 20px auto; }
+        #year { color: var(--dim); font-style: italic; font-size: 1.1rem; }
+        #debug { color: #ff5555; font-size: 0.7rem; margin-top: 20px; }
+    </style>
+</head>
+<body>
 
-def get_element_data(target_date):
-    """Calculates the 92-day calendar values."""
-    elements = [
-        "Hydrogen", "Helium", "Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon",
-        "Sodium", "Magnesium", "Aluminium", "Silicon", "Phosphorus", "Sulfur", "Chlorine", "Argon", "Potassium", "Calcium",
-        "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc",
-        "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton", "Rubidium", "Strontium", "Yttrium", "Zirconium",
-        "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin",
-        "Antimony", "Tellurium", "Iodine", "Xenon", "Cesium", "Barium", "Lanthanum", "Cerium", "Praseodymium", "Neodymium",
-        "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium",
-        "Lutetium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury",
-        "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon", "Francium", "Radium", "Actinium", "Thorium",
-        "Protactinium", "Uranium"
-    ]
-    
-    # Logic from your original script
-    days_since_0001 = (target_date - date(1, 1, 1)).days
-    days_from_epoch_to_0001 = 460 * 365.2425 
-    total_days = days_since_0001 + days_from_epoch_to_0001
-    
-    day_idx = int(total_days % 92)
-    year_92 = int(total_days // 92) + 1
-    year_flavor_idx = int(year_92 % 92)
-    
-    return {
-        "day": day_idx + 1,
-        "element": elements[day_idx],
-        "year": year_92,
-        "year_element": elements[year_flavor_idx]
-    }
+    <div class="card">
+        <div id="header">Loading...</div>
+        <div id="img-box">
+            <img id="element-img" src="">
+            <span id="placeholder" style="color:#555">Loading Element...</span>
+        </div>
+        <p id="day"></p>
+        <h1 id="name"></h1>
+        <div class="hr"></div>
+        <div id="year"></div>
+        <div id="debug"></div>
+    </div>
 
-def update_display():
-    """Triggered when the button is clicked to refresh date."""
-    data = get_element_data(date.today())
-    day_label.config(text=f"Day {data['day']}")
-    element_label.config(text=data['element'].upper())
-    year_info.config(text=f"Year {data['year']} • Era of {data['year_element']}")
+    <script>
+        const elements = [
+            "Hydrogen", "Helium", "Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon",
+            "Sodium", "Magnesium", "Aluminium", "Silicon", "Phosphorus", "Sulfur", "Chlorine", "Argon", "Potassium", "Calcium",
+            "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc",
+            "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton", "Rubidium", "Strontium", "Yttrium", "Zirconium",
+            "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin",
+            "Antimony", "Tellurium", "Iodine", "Xenon", "Cesium", "Barium", "Lanthanum", "Cerium", "Praseodymium", "Neodymium",
+            "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium",
+            "Lutetium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury",
+            "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon", "Francium", "Radium", "Actinium", "Thorium",
+            "Protactinium", "Uranium"
+        ];
 
-# --- UI Setup ---
-root = tk.Tk()
-root.title("Democritus Calendar")
-root.geometry("400x350")
-root.configure(bg="#1e1e1e") # Dark background
+        function run() {
+            try {
+                const now = new Date();
+                
+                // MATH REPAIR: 
+                // We use Unix Time (ms since 1970) + the ms from Year 1 to 1970.
+                const msInDay = 86400000;
+                const daysSince0001 = Math.floor((now.getTime() + 62135596800000) / msInDay);
+                const totalDays = daysSince0001 + (460 * 365.2425);
 
-# Styling
-style = ttk.Style()
-style.theme_use('clam')
+                const dayIdx = Math.floor(totalDays % 92);
+                const yearNum = Math.floor(totalDays / 92) + 1;
+                const yearElement = elements[Math.floor(yearNum % 92)];
 
-# Main Container
-frame = tk.Frame(root, bg="#1e1e1e", padx=20, pady=20)
-frame.place(relx=0.5, rely=0.5, anchor="center")
+                // Update UI
+                document.getElementById('header').innerText = now.toDateString();
+                document.getElementById('day').innerText = "Day " + (dayIdx + 1);
+                document.getElementById('name').innerText = elements[dayIdx];
+                document.getElementById('year').innerText = "Year " + yearNum + " • Era of " + yearElement;
 
-# Labels
-header = tk.Label(frame, text=date.today().strftime("%B %d, %Y"), font=("Segoe UI", 10), fg="#888888", bg="#1e1e1e")
-header.pack()
+                // Image logic
+                const img = document.getElementById('element-img');
+                img.src = "https://images-of-elements.com/s/" + elements[dayIdx].toLowerCase() + ".jpg";
+                img.onload = () => {
+                    img.style.display = "block";
+                    document.getElementById('placeholder').style.display = "none";
+                };
+            } catch (e) {
+                document.getElementById('debug').innerText = "Error: " + e.message;
+            }
+        }
 
-day_label = tk.Label(frame, text="", font=("Segoe UI", 18), fg="#00adb5", bg="#1e1e1e")
-day_label.pack(pady=(10, 0))
-element_label = tk.Label(frame, text="", font=("Segoe UI", 48, "bold"), fg="#eeeeee", bg="#1e1e1e")
-element_label.pack()
-
-divider = tk.Frame(frame, height=2, width=100, bg="#393e46")
-divider.pack(pady=15)
-
-year_info = tk.Label(frame, text="", font=("Segoe UI", 12, "italic"), fg="#888888", bg="#1e1e1e")
-year_info.pack()
-
-# Initial update
-update_display()
-
-root.mainloop()
+        // Start immediately
+        run();
+    </script>
+</body>
+</html>
