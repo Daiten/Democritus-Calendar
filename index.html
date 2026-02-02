@@ -19,15 +19,61 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
         }
-        .container { text-align: center; padding: 40px; width: 90%; max-width: 400px; }
-        #header-date { color: var(--text-dim); margin-bottom: 20px; text-transform: uppercase; }
-        #day-num { color: var(--accent-color); font-size: 1.5rem; margin: 0; }
-        #element-name { font-size: 4rem; font-weight: bold; margin: 10px 0; text-transform: uppercase; }
-        .divider { height: 2px; width: 80px; background-color: var(--divider); margin: 25px auto; }
-        #year-info { color: var(--text-dim); font-style: italic; font-size: 1.1rem; }
+        .container { 
+            text-align: center; 
+            padding: 40px; 
+            width: 90%; 
+            max-width: 450px; 
+        }
+        #header-date { 
+            color: var(--text-dim); 
+            margin-bottom: 20px; 
+            text-transform: uppercase; 
+            font-size: 0.9rem;
+        }
+        #day-num { 
+            color: var(--accent-color); 
+            font-size: 1.5rem; 
+            margin: 0 0 20px 0; 
+        }
+        
+        /* Element visualization */
+        #element-visual {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px auto;
+        }
+        
+        #element-name { 
+            font-size: 3rem; 
+            font-weight: bold; 
+            margin: 10px 0; 
+            text-transform: uppercase; 
+        }
+        
+        #atomic-number {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .divider { 
+            height: 2px; 
+            width: 80px; 
+            background-color: var(--divider); 
+            margin: 25px auto; 
+        }
+        #year-info { 
+            color: var(--text-dim); 
+            font-style: italic; 
+            font-size: 1.1rem; 
+        }
+        
+
     </style>
 </head>
 <body>
@@ -35,7 +81,11 @@
     <div class="container">
         <div id="header-date">Loading...</div>
         <p id="day-num"></p>
+        
+        <svg id="element-visual" viewBox="0 0 200 200"></svg>
+        
         <h1 id="element-name"></h1>
+        <div id="atomic-number"></div>
         <div class="divider"></div>
         <div id="year-info"></div>
     </div>
@@ -54,6 +104,86 @@
             "Protactinium", "Uranium"
         ];
 
+        // Generate a simple atomic visualization
+        function generateAtomVisualization(atomicNumber) {
+            const svg = document.getElementById('element-visual');
+            svg.innerHTML = ''; // Clear previous
+            
+            const centerX = 100;
+            const centerY = 100;
+            
+            // Color scheme based on atomic number
+            const hue = (atomicNumber * 30) % 360;
+            const primaryColor = `hsl(${hue}, 70%, 60%)`;
+            const glowColor = `hsl(${hue}, 70%, 50%)`;
+            
+            // Nucleus (center)
+            const nucleus = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            nucleus.setAttribute('cx', centerX);
+            nucleus.setAttribute('cy', centerY);
+            nucleus.setAttribute('r', 15);
+            nucleus.setAttribute('fill', primaryColor);
+            nucleus.setAttribute('filter', 'url(#glow)');
+            
+            // Add glow filter
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+            filter.setAttribute('id', 'glow');
+            
+            const feGaussianBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+            feGaussianBlur.setAttribute('stdDeviation', '3');
+            feGaussianBlur.setAttribute('result', 'coloredBlur');
+            
+            const feMerge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
+            const feMergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+            feMergeNode1.setAttribute('in', 'coloredBlur');
+            const feMergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+            feMergeNode2.setAttribute('in', 'SourceGraphic');
+            
+            feMerge.appendChild(feMergeNode1);
+            feMerge.appendChild(feMergeNode2);
+            filter.appendChild(feGaussianBlur);
+            filter.appendChild(feMerge);
+            defs.appendChild(filter);
+            svg.appendChild(defs);
+            
+            // Electron shells - simplified model (up to 3 shells)
+            const shells = Math.min(3, Math.ceil(atomicNumber / 10));
+            
+            for (let shell = 1; shell <= shells; shell++) {
+                const radius = 30 + (shell * 25);
+                
+                // Orbit path
+                const orbit = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                orbit.setAttribute('cx', centerX);
+                orbit.setAttribute('cy', centerY);
+                orbit.setAttribute('r', radius);
+                orbit.setAttribute('fill', 'none');
+                orbit.setAttribute('stroke', '#393e46');
+                orbit.setAttribute('stroke-width', '1');
+                orbit.setAttribute('stroke-dasharray', '5,5');
+                svg.appendChild(orbit);
+                
+                // Electrons on this shell
+                const electronsOnShell = Math.min(8, atomicNumber - ((shell - 1) * 8));
+                
+                for (let e = 0; e < electronsOnShell; e++) {
+                    const angle = (e / electronsOnShell) * 2 * Math.PI;
+                    const ex = centerX + radius * Math.cos(angle);
+                    const ey = centerY + radius * Math.sin(angle);
+                    
+                    const electron = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    electron.setAttribute('cx', ex);
+                    electron.setAttribute('cy', ey);
+                    electron.setAttribute('r', 4);
+                    electron.setAttribute('fill', '#00adb5');
+                    svg.appendChild(electron);
+                }
+            }
+            
+            svg.appendChild(nucleus);
+        }
+
         try {
             const now = new Date();
             
@@ -71,10 +201,16 @@
             const year92 = Math.floor(totalDays / 92) + 1;
             const yearFlavorIdx = Math.abs(Math.floor(year92 % 92));
 
+            const atomicNumber = dayIdx + 1;
+            
             document.getElementById('header-date').innerText = now.toDateString();
-            document.getElementById('day-num').innerText = "Day " + (dayIdx + 1);
+            document.getElementById('day-num').innerText = "Day " + atomicNumber;
             document.getElementById('element-name').innerText = elements[dayIdx] || "Error";
+            document.getElementById('atomic-number').innerText = "Atomic Number: " + atomicNumber;
             document.getElementById('year-info').innerText = "Year " + year92 + " • Era of " + (elements[yearFlavorIdx] || "Unknown");
+            
+            // Generate the atomic visualization
+            generateAtomVisualization(atomicNumber);
             
         } catch (err) {
             document.getElementById('header-date').innerText = "JavaScript Error: " + err.message;
