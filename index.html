@@ -8,8 +8,24 @@
         :root { --bg: #1e1e1e; --accent: #00adb5; --text: #eeeeee; --dim: #888888; --line: #393e46; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { text-align: center; width: 90%; max-width: 400px; padding: 20px; }
-        #img-box { width: 200px; height: 200px; margin: 20px auto; background: #2a2a2a; border: 2px solid var(--line); border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        #element-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        #img-box { 
+            width: 200px; 
+            height: 200px; 
+            margin: 20px auto; 
+            background: #2a2a2a; 
+            border: 2px solid var(--line); 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden; 
+        }
+        #element-img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain;
+            display: none; 
+        }
         #header { color: var(--dim); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; }
         #day { color: var(--accent); font-size: 1.4rem; font-weight: bold; margin: 0; }
         #name { font-size: 3.5rem; font-weight: 800; margin: 5px 0; text-transform: uppercase; }
@@ -47,6 +63,47 @@
             "Protactinium", "Uranium"
         ];
 
+        // UPDATE THIS: Replace 'YOUR-USERNAME' and 'YOUR-REPO' with your actual GitHub username and repository name
+        const GITHUB_USERNAME = 'Daiten';
+        const GITHUB_REPO = 'Democritus-Calendar';
+        const GITHUB_BRANCH = 'main'; // or 'master' if that's your default branch
+
+        function getImageSources(elementName) {
+            const lower = elementName.toLowerCase();
+            return [
+                // Try GitHub repo first (PNG)
+                `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/${GITHUB_BRANCH}/elements/${lower}.png`,
+                // Try GitHub repo (JPG)
+                `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/${GITHUB_BRANCH}/elements/${lower}.jpg`,
+                // Fallback to images-of-elements.com (PNG)
+                `https://images-of-elements.com/s/${lower}.png`,
+                // Fallback to images-of-elements.com (another PNG location)
+                `https://images-of-elements.com/${lower}.png`,
+                // Final fallback (JPG)
+                `https://images-of-elements.com/s/${lower}.jpg`
+            ];
+        }
+
+        function tryLoadImage(sources, index = 0) {
+            if (index >= sources.length) {
+                document.getElementById('placeholder').style.display = 'block';
+                return;
+            }
+
+            const img = document.getElementById('element-img');
+            
+            img.onload = () => {
+                img.style.display = "block";
+                document.getElementById('placeholder').style.display = "none";
+            };
+            
+            img.onerror = () => {
+                tryLoadImage(sources, index + 1);
+            };
+            
+            img.src = sources[index];
+        }
+
         function run() {
             try {
                 const now = new Date();
@@ -67,19 +124,15 @@
                 document.getElementById('name').innerText = elements[dayIdx];
                 document.getElementById('year').innerText = "Year " + yearNum + " • Era of " + yearElement;
 
-                // Image logic
-                const img = document.getElementById('element-img');
-                img.src = "https://images-of-elements.com/s/" + elements[dayIdx].toLowerCase() + ".jpg";
-                img.onload = () => {
-                    img.style.display = "block";
-                    document.getElementById('placeholder').style.display = "none";
-                };
+                // Try GitHub first, then fallback to images-of-elements.com
+                const sources = getImageSources(elements[dayIdx]);
+                tryLoadImage(sources);
+
             } catch (e) {
                 document.getElementById('debug').innerText = "Error: " + e.message;
             }
         }
 
-        // Start immediately
         run();
     </script>
 </body>
