@@ -1,220 +1,75 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Democritus Calendar</title>
-    <style>
-        :root {
-            --bg-color: #1e1e1e;
-            --accent-color: #00adb5;
-            --text-main: #eeeeee;
-            --text-dim: #888888;
-            --divider: #393e46;
-        }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .container { 
-            text-align: center; 
-            padding: 40px; 
-            width: 90%; 
-            max-width: 450px; 
-        }
-        #header-date { 
-            color: var(--text-dim); 
-            margin-bottom: 20px; 
-            text-transform: uppercase; 
-            font-size: 0.9rem;
-        }
-        #day-num { 
-            color: var(--accent-color); 
-            font-size: 1.5rem; 
-            margin: 0 0 20px 0; 
-        }
-        
-        /* Element visualization */
-        #element-visual {
-            width: 200px;
-            height: 200px;
-            margin: 0 auto 20px auto;
-        }
-        
-        #element-name { 
-            font-size: 3rem; 
-            font-weight: bold; 
-            margin: 10px 0; 
-            text-transform: uppercase; 
-        }
-        
-        #atomic-number {
-            color: var(--text-dim);
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-        }
-        
-        .divider { 
-            height: 2px; 
-            width: 80px; 
-            background-color: var(--divider); 
-            margin: 25px auto; 
-        }
-        #year-info { 
-            color: var(--text-dim); 
-            font-style: italic; 
-            font-size: 1.1rem; 
-        }
-        
+import tkinter as tk
+from tkinter import ttk
+from datetime import date
 
-    </style>
-</head>
-<body>
+def get_element_data(target_date):
+    """Calculates the 92-day calendar values."""
+    elements = [
+        "Hydrogen", "Helium", "Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon",
+        "Sodium", "Magnesium", "Aluminium", "Silicon", "Phosphorus", "Sulfur", "Chlorine", "Argon", "Potassium", "Calcium",
+        "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc",
+        "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton", "Rubidium", "Strontium", "Yttrium", "Zirconium",
+        "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin",
+        "Antimony", "Tellurium", "Iodine", "Xenon", "Cesium", "Barium", "Lanthanum", "Cerium", "Praseodymium", "Neodymium",
+        "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium",
+        "Lutetium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury",
+        "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon", "Francium", "Radium", "Actinium", "Thorium",
+        "Protactinium", "Uranium"
+    ]
+    
+    # Logic from your original script
+    days_since_0001 = (target_date - date(1, 1, 1)).days
+    days_from_epoch_to_0001 = 460 * 365.2425 
+    total_days = days_since_0001 + days_from_epoch_to_0001
+    
+    day_idx = int(total_days % 92)
+    year_92 = int(total_days // 92) + 1
+    year_flavor_idx = int(year_92 % 92)
+    
+    return {
+        "day": day_idx + 1,
+        "element": elements[day_idx],
+        "year": year_92,
+        "year_element": elements[year_flavor_idx]
+    }
 
-    <div class="container">
-        <div id="header-date">Loading...</div>
-        <p id="day-num"></p>
-        
-        <svg id="element-visual" viewBox="0 0 200 200"></svg>
-        
-        <h1 id="element-name"></h1>
-        <div id="atomic-number"></div>
-        <div class="divider"></div>
-        <div id="year-info"></div>
-    </div>
+def update_display():
+    """Triggered when the button is clicked to refresh date."""
+    data = get_element_data(date.today())
+    day_label.config(text=f"Day {data['day']}")
+    element_label.config(text=data['element'].upper())
+    year_info.config(text=f"Year {data['year']} • Era of {data['year_element']}")
 
-    <script>
-        const elements = [
-            "Hydrogen", "Helium", "Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon",
-            "Sodium", "Magnesium", "Aluminium", "Silicon", "Phosphorus", "Sulfur", "Chlorine", "Argon", "Potassium", "Calcium",
-            "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper", "Zinc",
-            "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton", "Rubidium", "Strontium", "Yttrium", "Zirconium",
-            "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium", "Indium", "Tin",
-            "Antimony", "Tellurium", "Iodine", "Xenon", "Cesium", "Barium", "Lanthanum", "Cerium", "Praseodymium", "Neodymium",
-            "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium", "Holmium", "Erbium", "Thulium", "Ytterbium",
-            "Lutetium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium", "Iridium", "Platinum", "Gold", "Mercury",
-            "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon", "Francium", "Radium", "Actinium", "Thorium",
-            "Protactinium", "Uranium"
-        ];
+# --- UI Setup ---
+root = tk.Tk()
+root.title("Democritus Calendar")
+root.geometry("400x350")
+root.configure(bg="#1e1e1e") # Dark background
 
-        // Generate a simple atomic visualization
-        function generateAtomVisualization(atomicNumber) {
-            const svg = document.getElementById('element-visual');
-            svg.innerHTML = ''; // Clear previous
-            
-            const centerX = 100;
-            const centerY = 100;
-            
-            // Color scheme based on atomic number
-            const hue = (atomicNumber * 30) % 360;
-            const primaryColor = `hsl(${hue}, 70%, 60%)`;
-            const glowColor = `hsl(${hue}, 70%, 50%)`;
-            
-            // Nucleus (center)
-            const nucleus = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            nucleus.setAttribute('cx', centerX);
-            nucleus.setAttribute('cy', centerY);
-            nucleus.setAttribute('r', 15);
-            nucleus.setAttribute('fill', primaryColor);
-            nucleus.setAttribute('filter', 'url(#glow)');
-            
-            // Add glow filter
-            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-            const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
-            filter.setAttribute('id', 'glow');
-            
-            const feGaussianBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
-            feGaussianBlur.setAttribute('stdDeviation', '3');
-            feGaussianBlur.setAttribute('result', 'coloredBlur');
-            
-            const feMerge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
-            const feMergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
-            feMergeNode1.setAttribute('in', 'coloredBlur');
-            const feMergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
-            feMergeNode2.setAttribute('in', 'SourceGraphic');
-            
-            feMerge.appendChild(feMergeNode1);
-            feMerge.appendChild(feMergeNode2);
-            filter.appendChild(feGaussianBlur);
-            filter.appendChild(feMerge);
-            defs.appendChild(filter);
-            svg.appendChild(defs);
-            
-            // Electron shells - simplified model (up to 3 shells)
-            const shells = Math.min(3, Math.ceil(atomicNumber / 10));
-            
-            for (let shell = 1; shell <= shells; shell++) {
-                const radius = 30 + (shell * 25);
-                
-                // Orbit path
-                const orbit = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                orbit.setAttribute('cx', centerX);
-                orbit.setAttribute('cy', centerY);
-                orbit.setAttribute('r', radius);
-                orbit.setAttribute('fill', 'none');
-                orbit.setAttribute('stroke', '#393e46');
-                orbit.setAttribute('stroke-width', '1');
-                orbit.setAttribute('stroke-dasharray', '5,5');
-                svg.appendChild(orbit);
-                
-                // Electrons on this shell
-                const electronsOnShell = Math.min(8, atomicNumber - ((shell - 1) * 8));
-                
-                for (let e = 0; e < electronsOnShell; e++) {
-                    const angle = (e / electronsOnShell) * 2 * Math.PI;
-                    const ex = centerX + radius * Math.cos(angle);
-                    const ey = centerY + radius * Math.sin(angle);
-                    
-                    const electron = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                    electron.setAttribute('cx', ex);
-                    electron.setAttribute('cy', ey);
-                    electron.setAttribute('r', 4);
-                    electron.setAttribute('fill', '#00adb5');
-                    svg.appendChild(electron);
-                }
-            }
-            
-            svg.appendChild(nucleus);
-        }
+# Styling
+style = ttk.Style()
+style.theme_use('clam')
 
-        try {
-            const now = new Date();
-            
-            // Explicitly defining the epoch start to avoid browser inconsistencies
-            const start = new Date(1, 0, 1); 
-            start.setFullYear(1); // Force year 1 (avoids 1901 bug)
-            
-            const diffInMs = now.getTime() - start.getTime();
-            const daysSince0001 = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-            
-            const daysFromEpochTo0001 = 460 * 365.2425;
-            const totalDays = daysSince0001 + daysFromEpochTo0001;
+# Main Container
+frame = tk.Frame(root, bg="#1e1e1e", padx=20, pady=20)
+frame.place(relx=0.5, rely=0.5, anchor="center")
 
-            const dayIdx = Math.abs(Math.floor(totalDays % 92));
-            const year92 = Math.floor(totalDays / 92) + 1;
-            const yearFlavorIdx = Math.abs(Math.floor(year92 % 92));
+# Labels
+header = tk.Label(frame, text=date.today().strftime("%B %d, %Y"), font=("Segoe UI", 10), fg="#888888", bg="#1e1e1e")
+header.pack()
 
-            const atomicNumber = dayIdx + 1;
-            
-            document.getElementById('header-date').innerText = now.toDateString();
-            document.getElementById('day-num').innerText = "Day " + atomicNumber;
-            document.getElementById('element-name').innerText = elements[dayIdx] || "Error";
-            document.getElementById('atomic-number').innerText = "Atomic Number: " + atomicNumber;
-            document.getElementById('year-info').innerText = "Year " + year92 + " • Era of " + (elements[yearFlavorIdx] || "Unknown");
-            
-            // Generate the atomic visualization
-            generateAtomVisualization(atomicNumber);
-            
-        } catch (err) {
-            document.getElementById('header-date').innerText = "JavaScript Error: " + err.message;
-        }
-    </script>
-</body>
-</html>
+day_label = tk.Label(frame, text="", font=("Segoe UI", 18), fg="#00adb5", bg="#1e1e1e")
+day_label.pack(pady=(10, 0))
+element_label = tk.Label(frame, text="", font=("Segoe UI", 48, "bold"), fg="#eeeeee", bg="#1e1e1e")
+element_label.pack()
+
+divider = tk.Frame(frame, height=2, width=100, bg="#393e46")
+divider.pack(pady=15)
+
+year_info = tk.Label(frame, text="", font=("Segoe UI", 12, "italic"), fg="#888888", bg="#1e1e1e")
+year_info.pack()
+
+# Initial update
+update_display()
+
+root.mainloop()
