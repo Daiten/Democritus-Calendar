@@ -5,15 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Democritus Calendar</title>
     <style>
-        :root { --bg: #1e1e1e; --accent: #00adb5; --text: #eeeeee; --dim: #888888; --line: #393e46; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        :root { 
+            --bg: #101010; 
+            --accent: #00adb5; 
+            --text: #eeeeee; 
+            --dim: #888888; 
+            --line: #393e46; 
+            --Thallium: #A6544D 
+        }
+        body { font-family: 'Times New Roman', serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { text-align: center; width: 90%; max-width: 400px; padding: 20px; }
         #img-box { 
-            width: 200px; 
-            height: 200px; 
-            margin: 20px auto; 
-            background: #2a2a2a; 
-            border: 2px solid var(--line); 
+            width: 250px; 
+            height: 250px; 
+            margin: 40px auto; 
+            background: #101010; 
+            border: 0px solid var(--line); 
             border-radius: 12px; 
             display: flex; 
             align-items: center; 
@@ -26,11 +33,19 @@
             object-fit: contain;
             display: none; 
         }
-        #header { color: var(--dim); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; }
-        #day { color: var(--accent); font-size: 1.4rem; font-weight: bold; margin: 0; }
-        #name { font-size: 3.5rem; font-weight: 800; margin: 5px 0; text-transform: uppercase; }
+        #header { color: var(--accent); font-weight: bold; font-size: 1.8rem; text-transform: uppercase; margin-bottom: 10px; }
+        
+        /* The 'filter' below makes whatever color JS applies 80% lighter */
+        #day { 
+            font-size: 2.4rem; 
+            font-weight: bold; 
+            margin: 0; 
+            filter: brightness(0.75); 
+        }
+        
+        #name { font-size: 3.5rem; font-weight: 800; margin: 5px 0; text-transform: uppercase;filter: brightness(1) }
         .hr { height: 2px; width: 50px; background: var(--line); margin: 20px auto; }
-        #year { color: var(--dim); font-style: italic; font-size: 1.1rem; }
+        #year { color: var(--dim); font-style: normal; font-size: 1.5rem; }
         #debug { color: #ff5555; font-size: 0.7rem; margin-top: 20px; }
     </style>
 </head>
@@ -48,7 +63,7 @@
         <div id="year"></div>
         <div id="debug"></div>
     </div>
-
+    
     <script>
         const elements = [
             "Hydrogen", "Helium", "Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon",
@@ -63,69 +78,71 @@
             "Protactinium", "Uranium"
         ];
 
-        // UPDATE THIS: Replace 'YOUR-USERNAME' and 'YOUR-REPO' with your actual GitHub username and repository name
         const GITHUB_USERNAME = 'Daiten';
         const GITHUB_REPO = 'Democritus-Calendar';
-        const GITHUB_BRANCH = 'main'; // or 'master' if that's your default branch
+        const GITHUB_BRANCH = 'main';
 
         function getImageSources(elementName) {
             const lower = elementName.toLowerCase();
             return [
-                // Try GitHub repo first (PNG)
                 `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/${GITHUB_BRANCH}/elements/${lower}.png`,
-                // Try GitHub repo (JPG)
                 `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${GITHUB_REPO}/${GITHUB_BRANCH}/elements/${lower}.jpg`,
-                // Fallback to images-of-elements.com (PNG)
                 `https://images-of-elements.com/s/${lower}.png`,
-                // Fallback to images-of-elements.com (another PNG location)
                 `https://images-of-elements.com/${lower}.png`,
-                // Final fallback (JPG)
                 `https://images-of-elements.com/s/${lower}.jpg`
             ];
         }
 
         function tryLoadImage(sources, index = 0) {
+            const img = document.getElementById('element-img');
+            const placeholder = document.getElementById('placeholder');
+            
             if (index >= sources.length) {
-                document.getElementById('placeholder').style.display = 'block';
+                placeholder.style.display = 'block';
+                img.style.display = 'none';
                 return;
             }
 
-            const img = document.getElementById('element-img');
-            
             img.onload = () => {
                 img.style.display = "block";
-                document.getElementById('placeholder').style.display = "none";
+                placeholder.style.display = "none";
             };
             
-            img.onerror = () => {
-                tryLoadImage(sources, index + 1);
-            };
-            
+            img.onerror = () => tryLoadImage(sources, index + 1);
             img.src = sources[index];
         }
 
         function run() {
             try {
                 const now = new Date();
-                
-                // MATH REPAIR: 
-                // We use Unix Time (ms since 1970) + the ms from Year 1 to 1970.
                 const msInDay = 86400000;
                 const daysSince0001 = Math.floor((now.getTime() + 62135596800000) / msInDay);
                 const totalDays = daysSince0001 + (460 * 365.2425);
 
                 const dayIdx = Math.floor(totalDays % 92);
+                const elementName = elements[dayIdx];
                 const yearNum = Math.floor(totalDays / 92) + 1;
                 const yearElement = elements[Math.floor(yearNum % 92)];
 
-                // Update UI
+                // Update UI Text
                 document.getElementById('header').innerText = now.toDateString();
-                document.getElementById('day').innerText = "Day " + (dayIdx + 1);
-                document.getElementById('name').innerText = elements[dayIdx];
+                
+                const dayEl = document.getElementById('day');
+                dayEl.innerText = "Day " + (dayIdx + 1);
+                
+                const nameEl = document.getElementById('name');
+                nameEl.innerText = elementName;
+                
                 document.getElementById('year').innerText = "Year " + yearNum + " • Era of " + yearElement;
 
-                // Try GitHub first, then fallback to images-of-elements.com
-                const sources = getImageSources(elements[dayIdx]);
+                // Color Magic: Applying the element color variable to both
+                // The 'day' ID will be lighter because of the filter in CSS
+                const elementVar = `var(--${elementName}, var(--accent))`;
+                nameEl.style.color = elementVar;
+                dayEl.style.color = elementVar;
+
+                // Image logic
+                const sources = getImageSources(elementName);
                 tryLoadImage(sources);
 
             } catch (e) {
